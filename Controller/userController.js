@@ -1,7 +1,7 @@
 const userModels = require('../Models/userModels')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const { signUpTemplate, resendVerificationTemplate,resetPasswordTemplate } = require('../utiles/emailTamplate')
+const { signUpTemplate, resendVerificationTemplate, resetPasswordTemplate } = require('../utiles/emailTamplate')
 const emailSender = require('../middlewares/nodemailer')
 
 
@@ -30,7 +30,7 @@ exports.signUp = async (req, res) => {
             phoneNumber,
             password: hashPassword,
             otp: otp,
-            otpExpired: Date.now() + 1000 + 60
+            otpExpired: Date.now() + 1000 * 60
         });
         await user.save();
 
@@ -55,6 +55,8 @@ exports.signUp = async (req, res) => {
 exports.verifyUser = async (req, res) => {
     try {
         const { email, otp } = req.body;
+        console.log(otp);
+
         const user = await userModels.findOne({ email: email.toLowerCase() })
         if (!user) {
             return res.status(404).json({
@@ -78,7 +80,7 @@ exports.verifyUser = async (req, res) => {
         user.otpExpired = null;
         await user.save()
 
-        return res.status(200).json({
+        res.status(200).json({
             message: 'User verified'
         })
     } catch (error) {
@@ -107,9 +109,9 @@ exports.resendVerification = async (req, res) => {
         const otp = Math.round(Math.random() * 1e4)
             .toString()
             .padStart(4, '0');
-            user.otp = otp;
-            user.otpExpired = Date.now() + 1000 + 60
-            await user.save();
+        user.otp = otp;
+        user.otpExpired = Date.now() + 1000 + 60
+        await user.save();
         const options = {
             email: user.email,
             subject: 'Verification Email',
@@ -143,15 +145,22 @@ exports.login = async (req, res) => {
                 message: "Incorrect password"
             })
         }
-        if (user.isVerified) {
+        if (user.isVerified === false) {
             return res.status(401).json({
                 message: 'User not verified check your email for verification link'
             })
         }
+        if (user.isLoggedIn === true) {
+            return res.status(401).json({
+                message: 'User is already logged in'
+            })
+        };
+
+        user.isLoggedIn = true;
         const token = jwt.sign({
             email: user.email,
-            id: user._id
-        }, process.env.JWT_SECRET, { expiresIn: '1h' })
+            id: user._id,
+        }, process.env.JWT_SECRET, { expiresIn: '10mins' });
 
         res.status(200).json({
             message: 'Login successful',
@@ -166,21 +175,24 @@ exports.login = async (req, res) => {
 }
 exports.resetPassword = async (req, res) => {
     try {
-        const { newPassword, confirmPassword } = req.body;
+        const {email, newPassword, confirmPassword } = req.body;
         if (newPassword !== confirmPassword) {
             return res.status(400).json({
                 message: 'Password does not match'
             })
         }
-        const {email} = req.body;
-        const user = await userModels.findOne({email:email.toLowerCase()})
+
+        const user = await userModels.findOne({email: email.toLowerCase()})
         if (!user) {
+
             res.status(400).json({
                 message: 'User not found'
             })
         }
         user.password = newPassword;
+
         await user.save();
+
         res.status(200).json({
             message: 'password reset successfully'
         })
@@ -194,7 +206,7 @@ exports.resetPassword = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await userModels.findOne({ email:email.toLowerCase()});
+        const user = await userModels.findOne({ email: email.toLowerCase() });
         if (!user) {
             return res.status(400).json({
                 message: 'User not found'
@@ -203,10 +215,10 @@ exports.forgotPassword = async (req, res) => {
         const otp = Math.round(Math.random() * 1e4)
             .toString()
             .padStart(4, '0');
-            user.otp = otp;
-            user.otpExpired = Date.now() + 1000 + 60
+        user.otp = otp;
+        user.otpExpired = Date.now() + 1000 + 60
 
-            await user.save()
+        await user.save()
 
         const options = {
             email: user.email,

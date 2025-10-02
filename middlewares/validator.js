@@ -52,19 +52,7 @@ exports.signUpValidator = async (req,res,next)=>{
 };
 exports.loginValidator = async (req,res,next)=>{
     const Schema = Joi.object({
-         firstName: Joi.string().min(3).max(30).pattern(new RegExp('^[A-Za-z]+$'))
-        .required().messages({
-            'any.required': 'Firstname is required',
-            'string.empty': 'Firstname cannot be empty',   
-            'string.min': 'Firstname should contain at least 3 characters'
-        }),
-
-        lastName: Joi.string().min(3).max(30).pattern(new RegExp('^[A-Za-z]+$'))
-        .required().messages({
-            'any.required': 'Lastname is required',
-            'string.empty': 'Lastname cannot be empty',   
-            'string.min': 'Lastname should contain at least 3 characters'
-        }),
+        
         email: Joi.string().email().required().messages({
             'any.required': 'Email is required',
             'string.empty': 'Email cannot be empty',
@@ -74,12 +62,6 @@ exports.loginValidator = async (req,res,next)=>{
             'any.required': 'password is required',
             'string.empty': 'password cannot be empty',
         }),
-                phoneNumber: Joi.string().pattern(new RegExp('^[0-9]{10,15}$')) // accepts 10–15 digits
-        .required().messages({
-            'any.required': 'Phone number is required',
-            'string.empty': 'Phone number cannot be empty',
-            'string.pattern.base': 'Phone number must contain only digits and be 10 to 15 digits long'
-        })
 
     })
     const {error} = Schema.validate(req.body)
