@@ -1,8 +1,8 @@
-const { createFood, getFoodByRestaurant } = require('../controllers/foodcontrollers')
-const upload = require('../middleware/multer')
 const router = require('express').Router()
+const upload = require('../middlewares/multer');
+const foodController = require('../Controller/foodcontrollers');
 
-router.post('/restaurant/food/:id',upload.single('image') , createFood)
+// Add food route
+router.post('/add-food', upload.single('image'), foodController.createFood);
 
-router.get('/food/:restaurantId', getFoodByRestaurant)
-module.exports = router
+module.exports = router;

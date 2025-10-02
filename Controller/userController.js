@@ -172,7 +172,8 @@ exports.resetPassword = async (req, res) => {
                 message: 'Password does not match'
             })
         }
-        const user = await userModels.findById(decoded.id)
+        const {email} = req.body;
+        const user = await userModels.findOne({email:email.toLowerCase()})
         if (!user) {
             res.status(400).json({
                 message: 'User not found'
@@ -185,9 +186,6 @@ exports.resetPassword = async (req, res) => {
         })
 
     } catch (error) {
-            return res.status(400).json({
-                message: 'Link expired, please request a new link'
-            })
         res.status(500).json({
             message: error.message
         })

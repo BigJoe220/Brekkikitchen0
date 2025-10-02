@@ -1,6 +1,6 @@
-const { createRestaurant, getAllRestaurants, getRestaurantById } = require('../controllers/restaurantcontroller')
-const upload = require('../middleware/multer')
+const { createRestaurant, getAllRestaurants, getRestaurantById } = require('../Controller/restaurantcontroller')
 const router = require('express').Router()
+const upload = require('../middlewares/multer')
 
 router.post('/restaurant',upload.single('image') ,createRestaurant)
 
