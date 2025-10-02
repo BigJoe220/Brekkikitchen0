@@ -1,4 +1,4 @@
-const Foodmodel = require('../models/foodmodel');
+const Foodmodel = require('../Models/foodModel');
 const cloudinary = require('../config/cloudinary');
 const resturantmodel = require('../Models/restaurantModel');
 
