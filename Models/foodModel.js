@@ -26,6 +26,10 @@ const foodSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'restaurants',
     required: true
+  },
+  isOrdered: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

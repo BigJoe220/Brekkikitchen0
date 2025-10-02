@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
 
 const cartSchema = new mongoose.Schema({
+
      name:{
         type:String,
         required:true
@@ -10,8 +11,8 @@ const cartSchema = new mongoose.Schema({
     required:true
    },
    quantity:{
-    type:String,
-    required:true
+    type:Number,
+    default:1
    },
    price:{
     type:String,
@@ -20,8 +21,19 @@ const cartSchema = new mongoose.Schema({
    Subtotal:{
     type:String,
     required:true
-   }
+   },
+    foodId: {
+       type: mongoose.Schema.Types.ObjectId,
+       ref: 'foods',
+       required: true
+     },
+      userId: {
+         type: mongoose.Schema.Types.ObjectId,
+         ref: 'users',
+         required: true
+       },
+   
 },{timestamps:true})
-const cartModels = mongoose.model('order', cartSchema)
+const cartModels = mongoose.model('carts', cartSchema)
 
 module.exports=cartModels
