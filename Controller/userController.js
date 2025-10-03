@@ -84,7 +84,7 @@ exports.verifyUser = async (req, res) => {
             message: 'User verified'
         })
     } catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
+        if (error) {
             return res.status(500).json({
                 message: 'Session expired, please resend verification'
             })
