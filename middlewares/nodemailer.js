@@ -1,30 +1,33 @@
 const nodemailer = require("nodemailer");
 
+const emailSender =  async(options)=>{
+    // Create a test account or replace with real credentials.
+const transporter = nodemailer.createTransport({
+  service: process.env.SERVICE,
+  host: process.env.EMAIL_HOST,
+  port: 587, // use 465 for SSL, 587 for TLS
+  tls: {
+    rejectUnauthorized: false,
+  },
+  secure: false, // true for 465, false for 587
+  auth: {
+    user: process.env.APP_USER,
+    pass: process.env.APP_PASSWORD,
+  },
+});
 
-const axios = require('axios')
 
-const emailSender = async (options) => {
-  try {
-    const response = await axios.post(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        sender: { email: process.env.APP_USER, name: 'Morning munch' },
-        to: [{ email: options.email }],
-        subject: options.subject,
-        htmlContent: options.html,
-      },
-      {
-        headers: {
-          'api-key': process.env.BREVO_API_KEY,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
-    console.log('Email sent successfully:', response.data)
-  } catch (error) {
-    console.error('Error sending email:', error.response ? error.response.data : error.message)
-  }
+// Wrap in an async IIFE so we can use await.
+(async () => {
+  const info = await transporter.sendMail({
+    from: `"J Koncept" <${process.env.APP_USER}>`,
+    to: options.email,
+    subject: options.subject,
+    //text: "Hello world?", // plain‑text body
+    html: options.html, // HTML body
+  });
+
+  console.log("Message sent:", info.messageId);
+})();
 }
-
-
 module.exports = emailSender

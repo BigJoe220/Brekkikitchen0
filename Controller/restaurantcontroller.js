@@ -30,7 +30,7 @@ exports.createRestaurant = async (req, res) => {
         }
     
         
-        const restaurant = new restaurantModel({
+        const restauturant = new restaurantmodel({
             name,
             description,
             time,
