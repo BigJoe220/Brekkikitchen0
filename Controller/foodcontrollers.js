@@ -185,3 +185,18 @@ exports.getFoodByRestaurant = async (req, res) => {
         });
     }
 }
+
+
+exports.getAllOrder = async (req, res) =>{
+  try {
+    const allOrder = await Foodmodel.find({isOrdered: true});
+    res.status(200).json({
+      message: 'All orders',
+      data: allOrder
+    })
+  } catch (error) {
+      res.status(500).json({
+            message: error.message
+        });
+  }
+}

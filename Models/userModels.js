@@ -37,6 +37,6 @@ const userSchema = new mongoose.Schema({
         type: Number
     }
 },{timestamps:true})
-const userModels = mongoose.model('user', userSchema)
+const userModels = mongoose.model('users', userSchema)
 
 module.exports=userModels
