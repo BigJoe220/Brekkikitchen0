@@ -1,13 +1,13 @@
-const Foodmodel = require('../Models/foodModel');
+const foodModel = require('../Models/foodModel');
 const cloudinary = require('../config/cloudinary');
-const resturantmodel = require('../Models/restaurantModel');
+const restaurantModel = require('../Models/restaurantModel');
 
-// Helper to upload from memory buffer
+
 const uploadToCloudinary = (fileBuffer)=> {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: "SnapBreakfast/Food",
+        folder: "Brekkie/Food",
         use_filename: true,
         transformation: [
           { width: 500, height: 500, crop: "fill", gravity: "auto" }
@@ -18,7 +18,7 @@ const uploadToCloudinary = (fileBuffer)=> {
         else resolve(result);
       }
     );
-    stream.end(fileBuffer); // send buffer
+    stream.end(fileBuffer);
   });
 }
 
@@ -30,13 +30,13 @@ exports.createFood = async (req, res) => {
     const file = req.file;
 
     // 1. Check restaurant
-    const restaurant = await resturantmodel.findById(id);
+    const restaurant = await restaurantModel.findById(id);
     if (!restaurant) {
       return res.status(404).json({ message: "Restaurant not found" });
     }
 
     // 2. Check food name duplication
-    const existingFood = await Foodmodel.findOne({ name });
+    const existingFood = await foodModel.findOne({ name });
     if (existingFood) {
       return res.status(400).json({ message: "Food item already exists" });
     }
@@ -53,7 +53,7 @@ exports.createFood = async (req, res) => {
     };
 
     // 4. Create and save food
-    const food = new Foodmodel({
+    const food = new foodModel({
       name,
       price,
       description,
@@ -80,7 +80,7 @@ exports.createFood = async (req, res) => {
 // Get all food items
 exports.getAllFoods = async (req, res) => {
   try {
-    const foods = await Foodmodel.find().populate('restaurantId');
+    const foods = await foodModel.find().populate('restaurantId');
     res.status(200).json({
       message: 'Food items fetched successfully',
       data: foods
@@ -95,7 +95,7 @@ exports.getAllFoods = async (req, res) => {
 exports.getFoodById = async (req, res) => {
   try {
     const { id } = req.params;
-    const food = await Foodmodel.findById(id).populate('restaurantId');
+    const food = await foodModel.findById(id).populate('restaurantId');
     if (!food) {
       return res.status(404).json({ message: "Food item not found" });
     }       
@@ -115,7 +115,7 @@ exports.updateFood = async (req, res) => {
     const { id } = req.params;
     const { name, price, description } = req.body;
     const file = req.file;  
-    const food = await Foodmodel.findById(id);
+    const food = await foodModel.findById(id);
     if (!food) {
       return res.status(404).json({ message: "Food item not found" });
     }
@@ -137,7 +137,7 @@ exports.updateFood = async (req, res) => {
             publicId: newImage.public_id
         };
     }       
-    const updatedFood = await Foodmodel.findByIdAndUpdate(id, updatedData, { new: true });
+    const updatedFood = await foodModel.findByIdAndUpdate(id, updatedData, { new: true });
     res.status(200).json({
       message: "Food item updated successfully",
       data: updatedFood
@@ -152,7 +152,7 @@ exports.updateFood = async (req, res) => {
 exports.deleteFood = async (req, res) => {
     try {
         const { id } = req.params;
-        const food = await Foodmodel.findById(id);
+        const food = await foodModel.findById(id);
         if (!food) {
             return res.status(404).json({ message: "Food item not found" });
 
@@ -161,7 +161,7 @@ exports.deleteFood = async (req, res) => {
         if (food.image && food.image.publicId) {
             await cloudinary.uploader.destroy(food.image.publicId);
         }
-        await Foodmodel.findByIdAndDelete(id);
+        await foodModel.findByIdAndDelete(id);
         res.status(200).json({
             message: "Food item deleted successfully"
         });
@@ -174,7 +174,7 @@ exports.deleteFood = async (req, res) => {
 exports.getFoodByRestaurant = async (req, res) => {
     try {
         const { restaurantId } = req.params;
-        const foods = await Foodmodel.find({ restaurantId }).populate('restaurantId');
+        const foods = await foodModel.find({ restaurantId }).populate('restaurantId');
         res.status(200).json({
             message: "Food items fetched successfully",
             data: foods

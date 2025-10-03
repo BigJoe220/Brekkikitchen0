@@ -71,4 +71,4 @@ exports.loginValidator = async (req,res,next)=>{
         })
     }
     next()
-}
+};

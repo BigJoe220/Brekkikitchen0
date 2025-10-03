@@ -1,24 +1,25 @@
-const restaurantmodel = require("../Models/restaurantModel");
+const restaurantModel = require("../Models/restaurantModel");
 const cloudinary = require("../config/cloudinary");
 const fs = require('fs');
 // Create a new restaurant
 exports.createRestaurant = async (req, res) => {
     try {
         const { name, description, time } = req.body;
+        
         const file = req.file;
+        console.log(file);
+        
 
-        const existingRestaurant = await restaurantmodel.findOne({ name });
+        const existingRestaurant = await restaurantModel.findOne({ name });
+        
         if (existingRestaurant) {
           return res.status(400).json({ message: "Restaurant already exists" });
         }
          
-       const cloudImage = await cloudinary.uploader.upload(file.path, {
-        folder: 'SnapBreakfast/Restaurant',
-        use_filename: true,
-        transformation: [
-        { width: 500, height: 250, crop: "fill", gravity: "auto" }
-         ]
-       });
+       const cloudImage = await cloudinary.uploader.upload(file.originalname);
+       console.log(cloudImage);
+       
+       
          const Image = {   
             url: cloudImage.secure_url,
             publicId: cloudImage.public_id
@@ -29,7 +30,7 @@ exports.createRestaurant = async (req, res) => {
         }
     
         
-        const retaturant = new restaurantmodel({
+        const restaurant = new restaurantModel({
             name,
             description,
             time,
@@ -41,6 +42,8 @@ exports.createRestaurant = async (req, res) => {
             data: restaurant
         });
     } catch (error) {
+        console.log(error);
+        
         res.status(500).json({
             message: error.message
         })
@@ -48,7 +51,7 @@ exports.createRestaurant = async (req, res) => {
 };
 exports.getAllRestaurants = async (req, res) => {
     try {
-        const resturants = await restaurantmodel.find().populate('foodIds');
+        const resturants = await restaurantModel.find().populate('foodIds');
         res.status(200).json({
             message: 'Restaurants fetched successfully',
             data: resturants
